@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
+using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+using Math = Unity.Mathematics.Geometry.Math;
 
 public interface IHitable
 {
@@ -31,10 +34,10 @@ public class RigidBodyAgent : MonoBehaviour, IHitable
         
         _rigid.AddForceAtPosition(force, position, mode);
 
-        _physicsCoroutine = StartCoroutine(PlayPhysics());
+        _physicsCoroutine = StartCoroutine(WaitForAgentGetStable());
     }
 
-    private IEnumerator PlayPhysics()
+    private IEnumerator WaitForAgentGetStable()
     {
         yield return new WaitForFixedUpdate();
         yield return new WaitUntil(() => _rigid.linearVelocity.sqrMagnitude < _idleVelocity * _idleVelocity);
