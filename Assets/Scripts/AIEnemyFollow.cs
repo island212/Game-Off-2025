@@ -4,7 +4,7 @@ using UnityEngine.AI;
 
 public class AIEnemyFollow : MonoBehaviour
 {
-    public Transform Target;
+    public AIBrain Brain;
     public NavMeshAgent NavAgent;
     
     void Update()
@@ -12,11 +12,12 @@ public class AIEnemyFollow : MonoBehaviour
         if(!NavAgent.enabled)
             return;
         
-        NavAgent.SetDestination(Target.position);
+        NavAgent.SetDestination(Brain.Target.position);
     }
 
     private void Reset()
     {
+        Brain = GetComponent<AIBrain>();
         NavAgent = GetComponent<NavMeshAgent>();
     }
 }
