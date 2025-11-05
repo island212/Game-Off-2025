@@ -243,7 +243,7 @@
             ]
         },
         {
-            "name": "GameOver",
+            "name": "EndScreen",
             "id": "afdb1197-0df9-4c6c-a4d0-f88f9dad89cc",
             "actions": [
                 {
