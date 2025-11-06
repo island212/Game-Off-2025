@@ -55,6 +55,6 @@ public class GameController : MonoBehaviour
 
     private void OnRestart(InputAction.CallbackContext obj)
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(SceneConstants.PLAYGROUND);
     }
 }

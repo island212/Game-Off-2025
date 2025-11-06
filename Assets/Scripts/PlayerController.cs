@@ -15,6 +15,18 @@ public class PlayerController : MonoBehaviour
         LocalPlayer = this;
     }
 
+    private void OnEnable()
+    {
+        GameEvent.OnPause += OnPause;
+        GameEvent.OnResume += OnResume;
+    }
+
+    private void OnDisable()
+    {
+        GameEvent.OnPause -= OnPause;
+        GameEvent.OnResume -= OnResume;
+    }
+
     private void OnDestroy()
     {
         LocalPlayer = null;
@@ -26,7 +38,17 @@ public class PlayerController : MonoBehaviour
         GetComponent<CharacterController>().enabled = false;
         var rigid = gameObject.GetOrAddComponent<Rigidbody>();
         rigid.AddForce(velocity, ForceMode.VelocityChange);
-        
+
         GameEvent.RaiseGameOver();
+    }
+    
+    private void OnPause()
+    {
+        GetComponent<FirstPersonController>().enabled = false;
+    }
+    
+    private void OnResume()
+    {
+        GetComponent<FirstPersonController>().enabled = true;
     }
 }

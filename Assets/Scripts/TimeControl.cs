@@ -12,11 +12,27 @@ public class TimeControl : MonoBehaviour
     // private double _lastTimeIdle;
 
     public float IdleTimeScale = 0.1f;
-    
+
     private Vector2 _move;
+    private bool _isPaused = false;
+    
+    private void OnEnable()
+    {
+        GameEvent.OnPause += OnPause;
+        GameEvent.OnResume += OnResume;
+    }
+
+    private void OnDisable()
+    {
+        GameEvent.OnPause -= OnPause;
+        GameEvent.OnResume -= OnResume;
+    }
     
     void Update()
     {
+        if (_isPaused)
+            return;
+            
         Time.timeScale = _move.sqrMagnitude > 0.01f ? 1f : IdleTimeScale;
 
         // if(_move.sqrMagnitude <= 0.01f)
@@ -43,9 +59,19 @@ public class TimeControl : MonoBehaviour
         //     Time.timeScale = math.max(math.cos((float)percent * math.PIHALF), MinTimeScale);
         // }
     }
-    
+
     public void OnMove(InputValue value)
     {
         _move = value.Get<Vector2>();
+    }
+
+    private void OnPause()
+    {
+        _isPaused = true;
+    }
+    
+    private void OnResume()
+    {
+        _isPaused = false;
     }
 }

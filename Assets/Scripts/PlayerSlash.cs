@@ -82,8 +82,9 @@ public class PlayerSlash : MonoBehaviour
             
             PostSlicing(mesh1, _candidates[i].transform, force + normal * SlashForce.x, torqueAxis * SlashTorque);
             PostSlicing(mesh2, _candidates[i].transform, force - normal * SlashForce.x, -torqueAxis * SlashTorque);
-            
+
             rootTransform.gameObject.SetActive(false);
+            rootTransform.GetComponent<AIBrain>()?.OnDeath();
             Destroy(rootTransform.gameObject);
         }
     }

@@ -26,13 +26,13 @@ public class AIBrain : MonoBehaviour
         GameEvent.OnGameOver -= OnGameOver;
     }
 
-    private void OnDestroy()
-    {
-        GameEvent.RaiseEnemyDied();
-    }
-
     void OnGameOver()
     {
         Agent.enabled = false;
+    }
+
+    public void OnDeath()
+    {
+        GameEvent.RaiseEnemyDied();
     }
 }

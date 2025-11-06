@@ -8,6 +8,8 @@ public static class GameEvent
     
     public static event Action OnEnemySpawned;
     public static event Action OnEnemyDied;
+    public static event Action OnPause;
+    public static event Action OnResume;
     
     public static void RaiseGameOver()
     {
@@ -28,9 +30,19 @@ public static class GameEvent
     {
         OnPlayerWin?.Invoke();
     }
-    
+
     public static void RaiseWaveStarted()
     {
         OnWaveStarted?.Invoke();
+    }
+
+    public static void RaisePause()
+    {
+        OnPause?.Invoke();
+    }
+    
+    public static void RaiseResume()
+    {
+        OnResume?.Invoke();
     }
 }
