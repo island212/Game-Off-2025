@@ -6,6 +6,7 @@ public class AIBrain : MonoBehaviour
 {
     public Transform Target;
     public NavMeshAgent Agent;
+    public Transform HeadTarget;
     
     private void Start()
     {
@@ -14,6 +15,14 @@ public class AIBrain : MonoBehaviour
         transform.parent = null;
         
         GameEvent.RaiseEnemySpawned();
+    }
+    
+    private void Update()
+    {
+        if (HeadTarget != null && Target != null)
+        {
+            HeadTarget.position = Target.position;
+        }
     }
 
     private void OnEnable()

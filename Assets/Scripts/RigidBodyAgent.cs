@@ -13,6 +13,8 @@ public interface IHitable
 
 public class RigidBodyAgent : MonoBehaviour, IHitable
 {
+    public Animator animator;
+
     [SerializeField] private float _idleVelocity = 0.1f;
     
     [SerializeField] private Rigidbody _rigid;
@@ -48,10 +50,15 @@ public class RigidBodyAgent : MonoBehaviour, IHitable
         
         transform.localRotation = Quaternion.identity;
     }
-    
+
     private void Reset()
     {
         _rigid = GetComponent<Rigidbody>();
         _navAgent = GetComponent<NavMeshAgent>();
+    }
+
+    private void Update()
+    {
+        animator.SetFloat("locomotion", _navAgent.velocity.magnitude);
     }
 }

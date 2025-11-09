@@ -62,13 +62,21 @@ public class PlayerSlash : MonoBehaviour
 
         for (var i = 0; i < count; i++)
         {
-            var meshFilter = _candidates[i].GetComponent<MeshFilter>();
+            var skinnedMeshRenderer = _candidates[i].GetComponentInChildren<SkinnedMeshRenderer>();
+            if (skinnedMeshRenderer == null)
+            {
+                skinnedMeshRenderer = _candidates[i].GetComponent<SkinnedMeshRenderer>();
+            }
+            
             var rootTransform = _candidates[i].transform.root;
+
+            Assert.IsTrue(skinnedMeshRenderer != null, $"Missing SkinnedMeshRenderer on {_candidates[i].name} or its children. Sliceable must have a SkinnedMeshRenderer. Parent was {rootTransform.name}");
             
-            Assert.IsTrue(meshFilter != null, $"Missing MeshFilter on {_candidates[i].name}. Sliceable must have a MeshFilter at the collider. Parent was {rootTransform.name}");
+            var bakedMesh = new Mesh();
+            skinnedMeshRenderer.BakeMesh(bakedMesh);
             
-            var (mesh1, mesh2) = _meshSlicer.Slice((_enterBasePosition, _enterTipPosition, exitTipPosition), meshFilter.sharedMesh,
-                _candidates[i].transform, true);
+            var (mesh1, mesh2) = _meshSlicer.Slice((_enterBasePosition, _enterTipPosition, exitTipPosition), bakedMesh,
+                skinnedMeshRenderer.transform, true);
             
             if(mesh1 == null || mesh2 == null)
                 continue;
@@ -77,15 +85,17 @@ public class PlayerSlash : MonoBehaviour
             var force = direction * SlashForce.y;
             var torqueAxis = Vector3.Cross(direction, normal);
             
-            _candidates[i].GetComponent<MeshRenderer>().GetSharedMaterials(_targetMaterials);
+            skinnedMeshRenderer.GetSharedMaterials(_targetMaterials);
             _targetMaterials.Add(SliceMaterial);
             
-            PostSlicing(mesh1, _candidates[i].transform, force + normal * SlashForce.x, torqueAxis * SlashTorque);
-            PostSlicing(mesh2, _candidates[i].transform, force - normal * SlashForce.x, -torqueAxis * SlashTorque);
+            PostSlicing(mesh1, skinnedMeshRenderer.transform, force + normal * SlashForce.x, torqueAxis * SlashTorque);
+            PostSlicing(mesh2, skinnedMeshRenderer.transform, force - normal * SlashForce.x, -torqueAxis * SlashTorque);
 
             rootTransform.gameObject.SetActive(false);
             rootTransform.GetComponent<AIBrain>()?.OnDeath();
             Destroy(rootTransform.gameObject);
+            
+            Destroy(bakedMesh);
         }
     }
 
