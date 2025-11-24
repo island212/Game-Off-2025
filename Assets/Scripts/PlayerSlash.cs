@@ -1,17 +1,32 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using Hanzzz.MeshSlicerFree;
 using NUnit.Framework;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
+using Quaternion = UnityEngine.Quaternion;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 public class PlayerSlash : MonoBehaviour
 {
+    private static readonly int BlendAnimationHash = Animator.StringToHash("Blend");
+    private static readonly int AttackAnimationHash = Animator.StringToHash("Attack");
+
     public InputActionReference AttackAction;
     public Vector2 SlashForce = new Vector2(10f, 30f);
     public float SlashTorque = 10f;
 
+    [Header("Animation")]
+    public Animator SlashAnim;
+    [FormerlySerializedAs("BlendCharge")] public AnimationCurve BlendAnimationCurve;
+    public AnimationCurve AngleAnimationCurve;
+    
     [Header("Slice Mesh")]
     public SliceableReference SlicePrefab;
     public Material SliceMaterial;
@@ -25,7 +40,16 @@ public class PlayerSlash : MonoBehaviour
     private readonly MeshSlicer _meshSlicer = new();
     private readonly List<Material> _targetMaterials = new();
 
+    private float _enterSliceTime;
     private Vector3 _enterBasePosition, _enterTipPosition;
+    
+    private IdleState _idleAnimationState;
+    private Coroutine _sliceCoroutine;
+    
+    private void Start()
+    {
+        _idleAnimationState = SlashAnim.GetBehaviour<IdleState>();
+    }
 
     private void OnEnable()
     {
@@ -39,17 +63,82 @@ public class PlayerSlash : MonoBehaviour
         AttackAction.action.canceled -= OnAttackEnd;
     }
 
+    private void Update()
+    {
+        var maxTime = BlendAnimationCurve.keys[BlendAnimationCurve.length - 1].time;
+        var timeSinceEnter = _enterSliceTime > 0 ? Time.timeSinceLevelLoad - _enterSliceTime : 0;
+
+        var normalizeTime = math.clamp(timeSinceEnter / maxTime, 0, 1);
+        
+        SlashAnim.SetFloat(BlendAnimationHash, BlendAnimationCurve.Evaluate(normalizeTime));
+    }
+
     private void OnAttackStart(InputAction.CallbackContext ctx)
     {
+        if(!_idleAnimationState.IsInState)
+            return;
+        
+        _enterSliceTime = Time.timeSinceLevelLoad;
         _enterBasePosition = RayOrigin.position;
         _enterTipPosition = RayOrigin.position + RayOrigin.forward * RaycastDistance;
     }
 
     private void OnAttackEnd(InputAction.CallbackContext ctx)
     {
+        if(_enterSliceTime == 0)
+            return;
+        
+        _enterSliceTime = 0;
+
+        if(_sliceCoroutine != null)
+            StopCoroutine(_sliceCoroutine);
+        
         var exitBasePosition = RayOrigin.position;
         var exitTipPosition = RayOrigin.position + RayOrigin.forward * RaycastDistance;
+        
+        _sliceCoroutine = StartCoroutine(RotateHandToTargetAnimation(exitBasePosition, exitTipPosition));
+    }
 
+    private IEnumerator RotateHandToTargetAnimation(Vector3 exitBasePosition, Vector3 exitTipPosition)
+    {
+        var dir = (exitBasePosition - _enterBasePosition).normalized;
+
+        var projected = Vector3.ProjectOnPlane(dir, transform.forward);
+        projected.z = 0;
+        projected.Normalize();
+        var angle = Vector3.SignedAngle(Vector3.up, -projected, Vector3.forward);
+        
+        if(angle < 0)
+        {
+            angle += 360;
+        }
+        
+        var time = 0f;
+        var animatedTransform = SlashAnim.transform;
+        var currentAngle = animatedTransform.eulerAngles.z;
+        do
+        {
+            time += Time.deltaTime;
+            currentAngle = Mathf.LerpAngle(currentAngle, angle, AngleAnimationCurve.Evaluate(time)) % 360;
+            if(currentAngle < 0)
+            {
+                currentAngle += 360;
+            }
+            
+            animatedTransform.localRotation = Quaternion.Euler(0, 0, currentAngle);
+            yield return null;
+        } 
+        while (Mathf.Abs(currentAngle - angle) > 0.01f);
+
+        animatedTransform.localRotation = Quaternion.Euler(0, 0, angle);
+        
+        SlashAnim.SetTrigger(AttackAnimationHash);
+        
+        Slice(exitBasePosition, exitTipPosition);
+    }
+    
+    private void Slice(Vector3 exitBasePosition, Vector3 exitTipPosition)
+    {
         var count = GetCollidersIntersectingPlane(_enterBasePosition, _enterTipPosition, exitBasePosition,
             exitTipPosition);
 
