@@ -1,27 +1,26 @@
+using System;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class TimeControl : MonoBehaviour
 {
-    // public float TimeToAccelerate = 1f;
-    // public float TimeToDecelerate = 1f;
-    // public float MinTimeScale = 0.1f;
-    //
-    // private double _lastTimeMoved;
-    // private double _lastTimeIdle;
-
     public float IdleTimeScale = 0.1f;
-
-    private Vector2 _move;
-    private bool _isPaused = false;
+    public Vector3 Offset; 
+    public float Radius = 4f;
+    public LayerMask EnemyLayer;
+    
+    private readonly Collider[] _colliders = new Collider[8];
     
     private void OnEnable()
     {
         GameEvent.OnPause += OnPause;
         GameEvent.OnResume += OnResume;
-    }
 
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+    
     private void OnDisable()
     {
         GameEvent.OnPause -= OnPause;
@@ -30,48 +29,30 @@ public class TimeControl : MonoBehaviour
     
     void Update()
     {
-        if (_isPaused)
-            return;
-            
-        Time.timeScale = _move.sqrMagnitude > 0.01f ? 1f : IdleTimeScale;
-
-        // if(_move.sqrMagnitude <= 0.01f)
-        // {
-        //     _lastTimeIdle = Time.unscaledTimeAsDouble;
-        // }
-        // else
-        // {
-        //     _lastTimeMoved = Time.unscaledTimeAsDouble;
-        // }
-        //
-        // if(_lastTimeIdle < _lastTimeMoved)
-        // {
-        //     var time = _lastTimeMoved - _lastTimeIdle;
-        //     var percent = math.clamp(time / TimeToAccelerate, 0, 1f);
-        //
-        //     Time.timeScale = math.sin((float)percent * math.PIHALF);
-        // }
-        // else
-        // {
-        //     var time = _lastTimeIdle - _lastTimeMoved;
-        //     var percent = math.clamp(time / TimeToDecelerate, 0, 1f);
-        //     
-        //     Time.timeScale = math.max(math.cos((float)percent * math.PIHALF), MinTimeScale);
-        // }
+        var hitCount = Physics.OverlapSphereNonAlloc(transform.position + Offset, Radius, _colliders, EnemyLayer, QueryTriggerInteraction.Ignore);
+        Time.timeScale = hitCount > 0 ? IdleTimeScale : 1f;
     }
 
-    public void OnMove(InputValue value)
+    private void OnDrawGizmos()
     {
-        _move = value.Get<Vector2>();
+        Gizmos.DrawWireSphere(transform.position + Offset, Radius);
     }
 
     private void OnPause()
     {
-        _isPaused = true;
+        enabled = false;
+        
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = true;
+        
+        Time.timeScale = 0f;
     }
     
     private void OnResume()
     {
-        _isPaused = false;
+        enabled = true;
+        
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = false;
     }
 }

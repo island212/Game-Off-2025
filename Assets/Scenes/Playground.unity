@@ -26673,6 +26673,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimeControl
   IdleTimeScale: 0.33333334
+  Offset: {x: 0, y: 1, z: 0}
+  Radius: 4
+  EnemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &7122638835874058532
 MonoBehaviour:
   m_ObjectHideFlags: 0

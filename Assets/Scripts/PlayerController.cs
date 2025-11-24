@@ -1,9 +1,6 @@
-using System;
 using StarterAssets;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -36,7 +33,11 @@ public class PlayerController : MonoBehaviour
     {
         GetComponent<FirstPersonController>().enabled = false;
         GetComponent<CharacterController>().enabled = false;
-        var rigid = gameObject.GetOrAddComponent<Rigidbody>();
+        var rigid = gameObject.GetComponent<Rigidbody>();
+        if(rigid == null)
+            rigid = gameObject.AddComponent<Rigidbody>();
+        
+        rigid.interpolation = RigidbodyInterpolation.Interpolate;
         rigid.AddForce(velocity, ForceMode.VelocityChange);
 
         GameEvent.RaiseGameOver();

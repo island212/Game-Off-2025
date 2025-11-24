@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7768455965318333173}
   - component: {fileID: 6190664097345847880}
   - component: {fileID: 9007205067528333302}
-  m_Layer: 6
+  m_Layer: 2
   m_Name: SlicedMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
