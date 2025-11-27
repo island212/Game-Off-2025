@@ -8,6 +8,7 @@ public class PauseController : MonoBehaviour
 {
     [Header("UI References")]
     public GameObject pausePanel;
+    public GameObject optionsPanel;
 
     public InputActionAsset InputActions;
 
@@ -106,5 +107,31 @@ public class PauseController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         SceneManager.LoadScene(SceneConstants.MENU);
+    }
+    
+    public void OpenOptionsPanel()
+    {
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(false);
+        }
+        
+        if (optionsPanel != null)
+        {
+            optionsPanel.SetActive(true);
+        }
+    }
+    
+    public void CloseOptionsPanel()
+    {
+        if (optionsPanel != null)
+        {
+            optionsPanel.SetActive(false);
+        }
+        
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(true);
+        }
     }
 }

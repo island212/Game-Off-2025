@@ -90,6 +90,9 @@ MonoBehaviour:
   _idleVelocity: 2.5
   _rigid: {fileID: 156139392004070425}
   _navAgent: {fileID: 8823501818420821195}
+  footstepSound: {fileID: 8300000, guid: 7eed27e92a2614a439b007e7c6fe3616, type: 3}
+  footstepInterval: 1
+  minVelocityForFootsteps: 0.2
 --- !u!54 &156139392004070425
 Rigidbody:
   m_ObjectHideFlags: 0

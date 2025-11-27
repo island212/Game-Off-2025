@@ -32,6 +32,10 @@ public class PlayerSlash : MonoBehaviour
     public Transform RayOrigin;
     public LayerMask RaycastMask;
     public float RaycastDistance = 3f;
+    
+    [Header("Audio")]
+    public AudioClip[] SwordHitSounds;
+    public AudioClip[] SwordMissSounds;
 
     private readonly Collider[] _candidates = new Collider[32];
     private readonly MeshSlicer _meshSlicer = new();
@@ -146,6 +150,16 @@ public class PlayerSlash : MonoBehaviour
         Debug.DrawRay(_enterBasePosition, exitTipPosition, Color.red, 10f);
         Debug.DrawRay(_enterBasePosition, normal, Color.blue, 10f);
 
+        // Play miss sound if nothing was hit
+        if (count == 0)
+        {
+            if (SwordMissSounds != null && SwordMissSounds.Length > 0)
+            {
+                SoundFXManager.Instance.PlayRandomSound(SwordMissSounds, RayOrigin);
+            }
+            return;
+        }
+
         for (var i = 0; i < count; i++)
         {
             var skinnedMeshRenderer = _candidates[i].GetComponentInChildren<SkinnedMeshRenderer>();
@@ -176,6 +190,13 @@ public class PlayerSlash : MonoBehaviour
             
             PostSlicing(mesh1, skinnedMeshRenderer.transform, force + normal * SlashForce.x, torqueAxis * SlashTorque);
             PostSlicing(mesh2, skinnedMeshRenderer.transform, force - normal * SlashForce.x, -torqueAxis * SlashTorque);
+
+            // Play random sword hit sound
+            if (SwordHitSounds != null && SwordHitSounds.Length > 0)
+            {
+                SoundFXManager.Instance.PlayRandomSound(SwordHitSounds, skinnedMeshRenderer.transform);
+                SoundFXManager.Instance.PlayRandomSound(SwordMissSounds, RayOrigin);
+            }
 
             rootTransform.gameObject.SetActive(false);
             rootTransform.GetComponent<AIBrain>()?.OnDeath();

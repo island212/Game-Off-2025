@@ -19,8 +19,21 @@ public class RigidBodyAgent : MonoBehaviour, IHitable
     
     [SerializeField] private Rigidbody _rigid;
     [SerializeField] private NavMeshAgent _navAgent;
+    
+    [Header("Footstep Audio")]
+    [SerializeField] private AudioClip footstepSound;
+    [SerializeField] private float footstepInterval = 1f; // Time between footsteps
+    [SerializeField] private float minVelocityForFootsteps = 0.2f; // Minimum velocity to play footsteps
+    
+    private float _nextFootstepTime;
 
     private Coroutine _physicsCoroutine;
+    
+    private void Start()
+    {
+        // Add random offset so enemies don't all step in sync
+        _nextFootstepTime = Time.time + UnityEngine.Random.Range(0f, footstepInterval);
+    }
     
     public void AddForce(Vector3 force, Vector3 position, ForceMode mode)
     {
@@ -59,6 +72,22 @@ public class RigidBodyAgent : MonoBehaviour, IHitable
 
     private void Update()
     {
-        animator.SetFloat("locomotion", _navAgent.velocity.magnitude);
+        var velocity = _navAgent.velocity.magnitude;
+        animator.SetFloat("locomotion", velocity);
+        
+        // Play footstep sounds when moving
+        if (velocity > minVelocityForFootsteps && Time.time >= _nextFootstepTime)
+        {
+            PlayFootstep();
+            _nextFootstepTime = Time.time + footstepInterval;
+        }
+    }
+    
+    private void PlayFootstep()
+    {
+        if (footstepSound == null)
+            return;
+            
+        SoundFXManager.Instance.PlaySound(footstepSound, transform);
     }
 }
