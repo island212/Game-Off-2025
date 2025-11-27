@@ -217,6 +217,8 @@ public class PlayerSlash : MonoBehaviour
         
         res.Rigidbody.AddForce(force, ForceMode.VelocityChange);
         res.Rigidbody.AddTorque(torque, ForceMode.VelocityChange);
+        
+        Destroy(res.gameObject, 60f);
     }
 
     private int GetCollidersIntersectingPlane(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4)
