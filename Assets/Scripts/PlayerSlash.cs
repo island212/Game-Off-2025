@@ -132,15 +132,6 @@ public class PlayerSlash : MonoBehaviour
 
     private void OnSwordHit(Collider other)
     {
-        var id = other.transform.root.GetInstanceID();
-        if(_slicedIds.Contains(id))
-            return;
-        
-        _ = Slice(id, other);
-    }
-
-    private async Task Slice(int id, Collider other)
-    {
         var swordTrans = SwordTrigger.transform;
         var normal = -swordTrans.right;
         
@@ -161,7 +152,7 @@ public class PlayerSlash : MonoBehaviour
         var v1 = v0 + swordTrans.up;
         var v2 = v0 + swordTrans.forward;
         
-        var (mesh1, mesh2) = await _meshSlicer.SliceAsync((v0, v1, v2), bakedMesh,
+        var (mesh1, mesh2) = _meshSlicer.Slice((v0, v1, v2), bakedMesh,
             skinnedMeshRenderer.transform, true);
         
         if(mesh1 == null || mesh2 == null)
@@ -189,8 +180,6 @@ public class PlayerSlash : MonoBehaviour
         Destroy(rootTransform.gameObject);
         
         Destroy(bakedMesh);
-        
-        Assert.IsTrue(_slicedIds.Remove(id));
     }
 
     private void PostSlicing(Mesh slicedMesh, Transform candidate, Vector3 force, Vector3 torque)
