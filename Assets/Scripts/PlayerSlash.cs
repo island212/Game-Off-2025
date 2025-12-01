@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading.Tasks;
 using Hanzzz.MeshSlicerFree;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.InputSystem;
+using UnityEngine.Profiling;
 using UnityEngine.Serialization;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
@@ -38,7 +40,8 @@ public class PlayerSlash : MonoBehaviour
     
     private readonly MeshSlicer _meshSlicer = new();
     private readonly List<Material> _targetMaterials = new();
-
+    private readonly List<int> _slicedIds = new();
+    
     private float _enterSliceTime;
     
     private IdleState _idleAnimationState;
@@ -126,11 +129,19 @@ public class PlayerSlash : MonoBehaviour
     //     
     //     //Slice(exitBasePosition, exitTipPosition);
     // }
-    
+
     private void OnSwordHit(Collider other)
     {
-        var swordTrans = SwordTrigger.transform;
+        var id = other.transform.root.GetInstanceID();
+        if(_slicedIds.Contains(id))
+            return;
         
+        _ = Slice(id, other);
+    }
+
+    private async Task Slice(int id, Collider other)
+    {
+        var swordTrans = SwordTrigger.transform;
         var normal = -swordTrans.right;
         
         var skinnedMeshRenderer = other.GetComponentInChildren<SkinnedMeshRenderer>();
@@ -150,13 +161,13 @@ public class PlayerSlash : MonoBehaviour
         var v1 = v0 + swordTrans.up;
         var v2 = v0 + swordTrans.forward;
         
-        var (mesh1, mesh2) = _meshSlicer.Slice((v0, v1, v2), bakedMesh,
+        var (mesh1, mesh2) = await _meshSlicer.SliceAsync((v0, v1, v2), bakedMesh,
             skinnedMeshRenderer.transform, true);
         
         if(mesh1 == null || mesh2 == null)
             return;
         
-        var direction = swordTrans.forward;
+        var direction = -swordTrans.forward;
         var force = direction * SlashForce.y;
         var torqueAxis = Vector3.Cross(direction, normal);
         
@@ -178,20 +189,23 @@ public class PlayerSlash : MonoBehaviour
         Destroy(rootTransform.gameObject);
         
         Destroy(bakedMesh);
+        
+        Assert.IsTrue(_slicedIds.Remove(id));
     }
 
     private void PostSlicing(Mesh slicedMesh, Transform candidate, Vector3 force, Vector3 torque)
     {
+        Profiler.BeginSample("PostSlicing");
         var res = Instantiate(SlicePrefab, candidate.position, candidate.rotation);
         res.transform.localScale = candidate.localScale;
         
         res.MeshFilter.mesh = slicedMesh;
-        res.Collider.sharedMesh = slicedMesh;
         res.Renderer.SetMaterials(_targetMaterials);
         
         res.Rigidbody.AddForce(force, ForceMode.VelocityChange);
         res.Rigidbody.AddTorque(torque, ForceMode.VelocityChange);
         
         Destroy(res.gameObject, 60f);
+        Profiler.EndSample();
     }
 }

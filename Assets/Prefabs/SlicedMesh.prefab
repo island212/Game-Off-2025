@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5228612142175377719}
   - component: {fileID: 161940189758720126}
   - component: {fileID: 3156072581532289765}
-  - component: {fileID: 7768455965318333173}
   - component: {fileID: 6190664097345847880}
   - component: {fileID: 9007205067528333302}
   m_Layer: 2
@@ -92,28 +91,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &7768455965318333173
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 738126578306358929}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
 --- !u!54 &6190664097345847880
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -155,5 +132,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SliceableReference
   MeshFilter: {fileID: 161940189758720126}
   Renderer: {fileID: 3156072581532289765}
-  Collider: {fileID: 7768455965318333173}
+  Collider: {fileID: 0}
   Rigidbody: {fileID: 6190664097345847880}
