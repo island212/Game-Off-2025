@@ -21668,7 +21668,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'You win!
 
-    Press ''A'' to restart'
+    Press ''Enter'' to restart'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -31293,7 +31293,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'You died!
 
-    Press ''A'' to restart'
+    Press ''Enter'' to restart'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -51601,11 +51601,6 @@ MonoBehaviour:
   SlicePrefab: {fileID: 9007205067528333302, guid: 8a73a0120c362e3428140c81ace44992, type: 3}
   SliceMaterial: {fileID: 2100000, guid: 80dce205007fafb47ab8afcfa1b53dd1, type: 2}
   SwordTrigger: {fileID: 1163209886}
-  RayOrigin: {fileID: 826375811}
-  RaycastMask:
-    serializedVersion: 2
-    m_Bits: 64
-  RaycastDistance: 3
   SwordHitSounds:
   - {fileID: 8300000, guid: a233b1216f99735439d7012813368276, type: 3}
   - {fileID: 8300000, guid: 832db1f02a716f34eab7e641031f856b, type: 3}
